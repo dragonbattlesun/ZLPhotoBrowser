@@ -112,7 +112,7 @@ public class ZLCameraConfiguration: NSObject {
 
 public extension ZLCameraConfiguration {
     @objc enum CaptureSessionPreset: Int {
-        var avSessionPreset: AVCaptureSession.Preset {
+        public var avSessionPreset: AVCaptureSession.Preset {
             switch self {
             case .cif352x288:
                 return .cif352x288
