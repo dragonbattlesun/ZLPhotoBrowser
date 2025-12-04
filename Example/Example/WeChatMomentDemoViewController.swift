@@ -19,7 +19,7 @@ class WeChatMomentDemoViewController: UIViewController {
     
     var hasSelectVideo = false
     
-    static let propertyLabel: Set<String> = ["allowSelectImage", "allowSelectVideo", "allowSelectGif", "allowSelectLivePhoto", "allowSelectOriginal", "cropVideoAfterSelectThumbnail", "allowEditVideo", "allowMixSelect", "maxSelectCount", "maxEditVideoTime"]
+    static let propertyLabel: Set<String> = ["allowSelectImage", "allowSelectVideo", "allowSelectGif", "allowSelectLivePhoto", "allowSelectOriginal", "allowEditVideo", "allowMixSelect", "maxSelectCount", "maxEditVideoTime"]
     
     let originalConfig: [String: Any] = {
         var dic = [String: Any]()
@@ -57,33 +57,69 @@ class WeChatMomentDemoViewController: UIViewController {
     
     func selectPhotos() {
         let config = ZLPhotoConfiguration.default()
-        config.allowSelectImage = true
-        config.allowSelectVideo = images.count == 0
+        config.allowSelectImage = self.assets.isEmpty ? true : !self.hasSelectVideo
+        config.allowSelectVideo = self.assets.isEmpty ? true : self.hasSelectVideo
         config.allowSelectGif = false
         config.allowSelectLivePhoto = false
         config.allowSelectOriginal = false
-        config.cropVideoAfterSelectThumbnail = true
         config.allowEditVideo = true
         config.allowMixSelect = false
         config.maxSelectCount = 9 - images.count
         config.maxEditVideoTime = 15
+        config.maxVideoSelectCount(1)
+        config.operateBeforeDoneAction = { [weak self] vc, models, block in
+            if models.isEmpty {
+                block(true)
+                return
+            }
+            
+            if models.count > 1, models.first?.isVideo == true {
+                self?.showMergeVideoAlert(vc: vc) { merge in
+                    // 后续逻辑自己实现
+                    block(merge)
+                }
+            } else {
+                block(true)
+            }
+        }
         
         // You can provide the selected assets so as not to repeat selection.
-        // Like this 'let photoPicker = ZLPhotoPreviewSheet(selectedAssets: assets)'
-        let photoPicker = ZLPhotoPreviewSheet()
+        // Like this 'let photoPicker = ZLPhotoPicker(selectedAssets: assets)'
+        let photoPicker = ZLPhotoPicker()
         
         photoPicker.selectImageBlock = { [weak self] (results, _) in
+            // 多个视频的话可以在这里进行合并
             let images = results.map { $0.image }
             let assets = results.map { $0.asset }
             self?.hasSelectVideo = assets.first?.mediaType == .video
             self?.images.append(contentsOf: images)
             self?.assets.append(contentsOf: assets)
-            self?.collectionView.reloadData()
+            
+            if self?.hasSelectVideo == true, results.count > 1 {
+                let hud = ZLProgressHUD.show(toast: .custom("正在合并视频 (当然是假的)"), in: self?.view, timeout: 3)
+                hud.timeoutBlock = { [weak self] in
+                    self?.collectionView.reloadData()
+                }
+            } else {
+                self?.collectionView.reloadData()
+            }
         }
         
         photoPicker.showPhotoLibrary(sender: self)
     }
     
+    func showMergeVideoAlert(vc: UIViewController, completion: @escaping (Bool) -> Void) {
+        let alert = CustomAlertController(title: "多个视频需要合并后发布", message: "(后续实现自己实现)", preferredStyle: .alert)
+        let cancelAction = ZLCustomAlertAction(title: "取消", style: .cancel) { _ in
+            completion(false)
+        }
+        let mergeAction = ZLCustomAlertAction(title: "合并", style: .default) { _ in
+            completion(true)
+        }
+        alert.addAction(cancelAction)
+        alert.addAction(mergeAction)
+        alert.show(with: vc)
+    }
 }
 
 
@@ -166,6 +202,16 @@ extension WeChatMomentDemoViewController: UICollectionViewDataSource, UICollecti
                     }
                     self.collectionView.reloadData()
                 }
+            }
+            
+            previewVC.dismissTransitionFrame = { [weak self] index -> CGRect? in
+                guard let `self` = self,
+                      let cell = self.collectionView.cellForItem(at: IndexPath(item: index, section: 0)) else {
+                    return nil
+                }
+                
+                let rect = self.collectionView.convert(cell.frame, to: self.view)
+                return rect
             }
             
             previewVC.modalPresentationStyle = .fullScreen
