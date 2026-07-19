@@ -1,7 +1,7 @@
 [![Version](https://img.shields.io/github/v/tag/longitachi/ZLPhotoBrowser.svg?color=blue&include_prereleases=&sort=semver)](https://cocoapods.org/pods/ZLPhotoBrowser)
 [![Carthage compatible](https://img.shields.io/badge/Carthage-compatible-brightgreen.svg?style=flat)](https://github.com/Carthage/Carthage)
 [![SPM supported](https://img.shields.io/badge/SwiftPM-supported-E57141.svg)](https://swift.org/package-manager/)
-[![License](https://img.shields.io/badge/license-MIT-black)](https://raw.githubusercontent.com/longitachi/ZLPhotoBrowser/master/LICENSE)
+[![License](https://img.shields.io/badge/license-Apache%202.0-black)](https://raw.githubusercontent.com/longitachi/ZLPhotoBrowser/master/LICENSE)
 [![Platform](https://img.shields.io/badge/Platforms-iOS-blue?style=flat)](https://img.shields.io/badge/Platforms-iOS-blue?style=flat)
 ![Language](https://img.shields.io/badge/Language-%20Swift%20-E57141.svg)
 [![Usage](https://img.shields.io/badge/Usage-Doc-yarn?style=flat)](https://github.com/longitachi/ZLPhotoBrowser/wiki/How-to-use-(Swift))
@@ -29,8 +29,11 @@ Detailed usage of `Swift` and `OC`, please refer to [Wiki](https://github.com/lo
 If you only want to use the image edit feature, please move to [ZLImageEditor](https://github.com/longitachi/ZLImageEditor).
 
 ### Features
+- [x] Support SwiftUI.
+- [x] Support iPad multi-window.
 - [x] Portrait and landscape.
 - [x] Two framework style.
+- [x] Support page loading.
 - [x] Preview selection (Support drag and drop).
 - [x] Library selection (Support sliding selection).
 - [x] Image/Gif/LivePhoto/Video.
@@ -53,25 +56,25 @@ If you only want to use the image edit feature, please move to [ZLImageEditor](h
 ### Requirements
  * iOS 10.0
  * Swift 5.x
- * Xcode 13.x
+ * Xcode 14.x
  
 ### Usage
  - Preview selection
  ```swift
- let ps = ZLPhotoPreviewSheet()
- ps.selectImageBlock = { [weak self] results, isOriginal in
+ let picker = ZLPhotoPicker()
+ picker.selectImageBlock = { [weak self] results, isOriginal in
      // your code
  }
- ps.showPreview(animate: true, sender: self)
+ picker.showPreview(animate: true, sender: self)
  ```
  
  - Library selection
  ```swift
- let ps = ZLPhotoPreviewSheet()
- ps.selectImageBlock = { [weak self] results, isOriginal in
+ let picker = ZLPhotoPicker()
+ picker.selectImageBlock = { [weak self] results, isOriginal in
      // your code
  }
- ps.showPhotoLibrary(sender: self)
+ picker.showPhotoLibrary(sender: self)
  ```
  
  - Pay attention, you need to add the following key-value pairs in your app's Info.plist
@@ -91,26 +94,26 @@ If you only want to use the image edit feature, please move to [ZLImageEditor](h
 ### Change Log
 > [More logs](https://github.com/longitachi/ZLPhotoBrowser/blob/master/CHANGELOG.md)
 ```
-● 4.5.5
+● 5.0.0
   Add:
-    The ZLImagePreviewController interface supports gesture-driven pull-down return animations.
-    Update the API for obtaining album permissions.
+    Optimized UI for iPad multitasking and custom window sizes.
+    Updated partial APIs for iOS 26 and iOS 27 compatibility.
+    Added parameter to control whether camera dismisses when app enters background.
+    Added `supportLandscape` attribute; `enableWideCameras` now defaults to true.
+    Added `thumbVCAllowPanToDismiss` property.
+    Significantly optimized sticker and doodling editing experience.
+    Updated album filtering logic to display more system albums.
   Fix:
-    Fixed the bug that mosaics were not displayed during painting.
-● 4.5.4
+    Fixed incorrect selection limit prompt when only videos are allowed. #1048
+    Fixed transparent PNG images rendered with a white background. #1045
+    Fixed selection state not syncing after deselecting in preview. #1042
+● 4.7.4
   Add:
-    Support iOS18.
-    Enhance the user experience of the image cropping interface and optimize the animation effects.
-    Support for setting `VideoMirrored` in the custom camera.
+    Supports editing multiple videos.
+    Change the license from MIT to Apache-2.0.
+● 4.7.3
   Fix:
-    Fix the issue where some UI elements are displayed incorrectly on phones without a notch.
-● 4.5.3
-  Add:
-    Support customizing the alert for when there is no permission.
-    Add configuration option to center tools in tools collection view.
-  Fix:
-    Fix the bug where the crop ratio view is not hidden when there is only one ratio in the cropping interface.
-    Fix a bug that may cause failure when saving images from iCloud to local storage.
+    Fixed the issue where the eraser position was displayed incorrectly when editing pictures.
 ...
 ```
 
@@ -166,7 +169,7 @@ Rebuild with --use-xcframeworks to create an xcframework bundle instead.` [Click
 
 #### Swift Package Manager
 1. Select File > Add Packages. Enter https://github.com/longitachi/ZLPhotoBrowser.git in the "Choose Package Repository" dialog.
-2. In the next page, specify the version resolving rule as "Up to Next Major" with "4.5.5" as its earliest version.
+2. In the next page, specify the version resolving rule as "Up to Next Major" with "5.0.0" as its earliest version.
 3. After Xcode checking out the source and resolving the version, you can choose the "ZLPhotoBrowser" library and add it to your app target.
 
 ### Support

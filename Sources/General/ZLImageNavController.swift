@@ -27,7 +27,7 @@
 import UIKit
 import Photos
 
-class ZLImageNavController: UINavigationController {
+public class ZLImageNavController: UINavigationController {
     var isSelectedOriginal = false
     
     var arrSelectedModels: [ZLPhotoModel] = []
@@ -40,8 +40,16 @@ class ZLImageNavController: UINavigationController {
         zl_debugPrint("ZLImageNavController deinit")
     }
     
-    override var preferredStatusBarStyle: UIStatusBarStyle {
+    public override var preferredStatusBarStyle: UIStatusBarStyle {
         return ZLPhotoUIConfiguration.default().statusBarStyle
+    }
+    
+    public override var supportedInterfaceOrientations: UIInterfaceOrientationMask {
+        if deviceIsiPad() {
+            .all
+        } else {
+            ZLPhotoUIConfiguration.default().supportLandscape ? .all : .portrait
+        }
     }
     
     override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: Bundle?) {
@@ -61,7 +69,7 @@ class ZLImageNavController: UINavigationController {
         fatalError("init(coder:) has not been implemented")
     }
     
-    override func viewDidLoad() {
+    public override func viewDidLoad() {
         super.viewDidLoad()
 
         // Do any additional setup after loading the view.

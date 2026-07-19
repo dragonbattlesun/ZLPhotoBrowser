@@ -294,7 +294,6 @@ class ZLClipImageViewController: UIViewController {
         }
         
         if let animateImageView {
-            cancelClipAnimateFrame = clipBoxFrame
             UIView.animate(withDuration: 0.25) {
                 animateImageView.frame = self.clipBoxFrame
                 self.bottomToolView.alpha = 1
@@ -326,6 +325,7 @@ class ZLClipImageViewController: UIViewController {
         mainScrollView.frame = view.bounds
         
         layoutInitialImage(animate: true)
+        cancelClipAnimateFrame = clipBoxFrame
         
         bottomToolView.frame = CGRect(x: 0, y: view.bounds.height - ZLClipImageViewController.bottomToolViewH, width: view.bounds.width, height: ZLClipImageViewController.bottomToolViewH)
         bottomShadowLayer.frame = bottomToolView.bounds
@@ -351,7 +351,7 @@ class ZLClipImageViewController: UIViewController {
     override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
         super.viewWillTransition(to: size, with: coordinator)
         shouldLayout = true
-        maxClipFrame = calculateMaxClipFrame()
+        maxClipFrame = calculateMaxClipFrame(size: size)
     }
     
     private func setupUI() {
@@ -398,14 +398,15 @@ class ZLClipImageViewController: UIViewController {
     }
     
     /// 计算最大裁剪范围
-    private func calculateMaxClipFrame() -> CGRect {
+    private func calculateMaxClipFrame(size: CGSize? = nil) -> CGRect {
+        let calSize = size ?? view.frame.size
         var insets = deviceSafeAreaInsets()
         insets.top += 20
         var rect = CGRect.zero
         rect.origin.x = 15
         rect.origin.y = insets.top
-        rect.size.width = UIScreen.main.bounds.width - 15 * 2
-        rect.size.height = UIScreen.main.bounds.height - insets.top - ZLClipImageViewController.bottomToolViewH - ZLClipImageViewController.clipRatioItemSize.height - 25
+        rect.size.width = calSize.width - 15 * 2
+        rect.size.height = calSize.height - insets.top - ZLClipImageViewController.bottomToolViewH - ZLClipImageViewController.clipRatioItemSize.height - 25
         return rect
     }
     

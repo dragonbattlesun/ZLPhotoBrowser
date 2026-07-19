@@ -86,11 +86,11 @@ class ZLCameraCell: UICollectionViewCell {
             return
         }
         session?.stopRunning()
-        if let input = videoInput {
-            session?.removeInput(input)
+        if let videoInput {
+            session?.removeInput(videoInput)
         }
-        if let output = photoOutput {
-            session?.removeOutput(output)
+        if let photoOutput {
+            session?.removeOutput(photoOutput)
         }
         session = nil
         previewLayer?.removeFromSuperlayer()
@@ -119,8 +119,10 @@ class ZLCameraCell: UICollectionViewCell {
         previewLayer?.frame = contentView.layer.bounds
         previewLayer?.videoGravity = .resizeAspectFill
         contentView.layer.insertSublayer(previewLayer!, at: 0)
-        
-        session?.startRunning()
+
+        DispatchQueue.global(qos: .background).async {
+            self.session?.startRunning()
+        }
     }
     
     private func backCamera() -> AVCaptureDevice? {

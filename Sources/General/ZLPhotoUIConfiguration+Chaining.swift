@@ -48,6 +48,12 @@ public extension ZLPhotoUIConfiguration {
     }
     
     @discardableResult
+    func supportLandscape(_ value: Bool) -> ZLPhotoUIConfiguration {
+        self.supportLandscape = value
+        return self
+    }
+    
+    @discardableResult
     func navCancelButtonStyle(_ style: ZLPhotoUIConfiguration.CancelButtonStyle) -> ZLPhotoUIConfiguration {
         navCancelButtonStyle = style
         return self
@@ -80,6 +86,18 @@ public extension ZLPhotoUIConfiguration {
     @discardableResult
     func customAlertClass(_ alertClass: ZLCustomAlertProtocol.Type?) -> ZLPhotoUIConfiguration {
         customAlertClass = alertClass
+        return self
+    }
+    
+    @discardableResult
+    func allowPageLoading(_ value: Bool) -> ZLPhotoUIConfiguration {
+        allowPageLoading = value
+        return self
+    }
+    
+    @discardableResult
+    func pageSize(_ value: Int) -> ZLPhotoUIConfiguration {
+        pageSize = value
         return self
     }
     
@@ -339,6 +357,18 @@ public extension ZLPhotoUIConfiguration {
     @discardableResult
     func previewVCBgColor(_ color: UIColor) -> ZLPhotoUIConfiguration {
         previewVCBgColor = color
+        return self
+    }
+    
+    @discardableResult
+    func noLibraryAuthTitleAndDescColor(_ color: UIColor) -> ZLPhotoUIConfiguration {
+        noLibraryAuthTitleAndDescColor = color
+        return self
+    }
+    
+    @discardableResult
+    func noLibraryAuthGotoSettingBtnTitleColor(_ color: UIColor) -> ZLPhotoUIConfiguration {
+        noLibraryAuthGotoSettingBtnTitleColor = color
         return self
     }
     

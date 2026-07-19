@@ -43,60 +43,59 @@ public class ZLPhotoConfiguration: NSObject {
         ZLPhotoConfiguration.single = ZLPhotoConfiguration()
     }
     
-    private var pri_maxSelectCount = 9
+    private var _maxSelectCount = 9
     /// Anything superior than 1 will enable the multiple selection feature. Defaults to 9.
     public var maxSelectCount: Int {
         get {
-            pri_maxSelectCount
+            _maxSelectCount
         }
         set {
-            pri_maxSelectCount = max(1, newValue)
+            _maxSelectCount = max(1, newValue)
         }
     }
     
-    private var pri_maxVideoSelectCount = 0
+    private var _maxVideoSelectCount = 0
     /// A count for video max selection. Defaults to 0.
     /// - warning: Only valid in mix selection mode. (i.e. allowMixSelect = true)
     public var maxVideoSelectCount: Int {
         get {
-            if pri_maxVideoSelectCount <= 0 {
+            if _maxVideoSelectCount <= 0 {
                 return maxSelectCount
             } else {
-                return max(minVideoSelectCount, min(pri_maxVideoSelectCount, maxSelectCount))
+                return max(minVideoSelectCount, min(_maxVideoSelectCount, maxSelectCount))
             }
         }
         set {
-            pri_maxVideoSelectCount = newValue
+            _maxVideoSelectCount = newValue
         }
     }
     
-    private var pri_minVideoSelectCount = 0
+    private var _minVideoSelectCount = 0
     /// A count for video min selection. Defaults to 0.
     /// - warning: Only valid in mix selection mode. (i.e. allowMixSelect = true)
     public var minVideoSelectCount: Int {
         get {
-            min(maxSelectCount, max(pri_minVideoSelectCount, 0))
+            min(maxSelectCount, max(_minVideoSelectCount, 0))
         }
         set {
-            pri_minVideoSelectCount = newValue
+            _minVideoSelectCount = newValue
         }
     }
     
     /// Whether photos and videos can be selected together. Defaults to true.
-    /// If set to false, only one video can be selected. Defaults to true.
     public var allowMixSelect = true
     
     /// Preview selection max preview count, if the value is zero, only show `Camera`, `Album`, `Cancel` buttons. Defaults to 20.
     public var maxPreviewCount = 20
     
-    private var pri_initialIndex = 1
+    private var _initialIndex = 1
     /// The index of the first selected image, and the indices of subsequently selected images are incremented based on this value. Defaults to 1.
     public var initialIndex: Int {
         get {
-            max(pri_initialIndex, 1)
+            max(_initialIndex, 1)
         }
         set {
-            pri_initialIndex = newValue
+            _initialIndex = newValue
         }
     }
     
@@ -117,39 +116,38 @@ public class ZLPhotoConfiguration: NSObject {
     /// If value is false, the LivePhoto logo is not displayed. Defaults to false.
     public var allowSelectLivePhoto = false
     
-    private var pri_allowTakePhotoInLibrary = true
+    private var _allowTakePhotoInLibrary = true
     /// Allow take photos in the album. Defaults to true.
     /// - warning: If allowTakePhoto and allowRecordVideo are both false, it will not be displayed.
     public var allowTakePhotoInLibrary: Bool {
         get {
-            pri_allowTakePhotoInLibrary && (cameraConfiguration.allowTakePhoto || cameraConfiguration.allowRecordVideo)
+            _allowTakePhotoInLibrary && (cameraConfiguration.allowTakePhoto || cameraConfiguration.allowRecordVideo)
         }
         set {
-            pri_allowTakePhotoInLibrary = newValue
+            _allowTakePhotoInLibrary = newValue
         }
     }
     
     /// Whether to callback directly after taking a photo. Defaults to false.
     public var callbackDirectlyAfterTakingPhoto = false
     
-    private var pri_allowEditImage = true
+    private var _allowEditImage = true
     public var allowEditImage: Bool {
         get {
-            pri_allowEditImage
+            _allowEditImage
         }
         set {
-            pri_allowEditImage = newValue
+            _allowEditImage = newValue
         }
     }
     
-    /// - warning: The video can only be edited when no photos are selected, or only one video is selected, and the selection callback is executed immediately after editing is completed.
-    private var pri_allowEditVideo = false
+    private var _allowEditVideo = false
     public var allowEditVideo: Bool {
         get {
-            pri_allowEditVideo
+            _allowEditVideo
         }
         set {
-            pri_allowEditVideo = newValue
+            _allowEditVideo = newValue
         }
     }
     
@@ -158,12 +156,11 @@ public class ZLPhotoConfiguration: NSObject {
     /// Editing video is only valid when allowEditVideo is true and maxSelectCount is 1.
     public var editAfterSelectThumbnailImage = false
     
-    /// Only valid when allowMixSelect is false and allowEditVideo is true. Defaults to true.
-    /// Just like the Wechat-Timeline selection style. If you want to crop the video after select thumbnail under allowMixSelect = true, please use **editAfterSelectThumbnailImage**.
-    public var cropVideoAfterSelectThumbnail = true
-    
     /// Save the edited image to the album after editing. Defaults to true.
     public var saveNewImageAfterEdit = true
+    
+    /// When the style is embedAlbumList, this property controls whether the thumbnail interface allows swiping to close from the edge.
+    public var thumbVCAllowPanToDismiss = true
     
     /// If true, you can slide select photos in album. Defaults to true.
     public var allowSlideSelect = true
@@ -203,8 +200,17 @@ public class ZLPhotoConfiguration: NSObject {
     /// Display the index of the selected photos. Defaults to true.
     public var showSelectedIndex = true
     
+    private var _maxEditVideoTime: ZLPhotoConfiguration.Second = 10
     /// Maximum cropping time when editing video, unit: second. Defaults to 10.
-    public var maxEditVideoTime: ZLPhotoConfiguration.Second = 10
+    /// - Note: The minimum value must be greater than 1.
+    public var maxEditVideoTime: ZLPhotoConfiguration.Second {
+        get {
+            _maxEditVideoTime
+        }
+        set {
+            _maxEditVideoTime = max(1, newValue)
+        }
+    }
     
     /// Allow to choose the maximum duration of the video. Defaults to 120.
     public var maxSelectVideoDuration: ZLPhotoConfiguration.Second = 120
@@ -238,11 +244,14 @@ public class ZLPhotoConfiguration: NSObject {
     /// This block will be called when cancel selecting an asset.
     public var didDeselectAsset: ((PHAsset) -> Void)?
     
+    /// This block will be called when clicking the camera button in the library.
+    public var canEnterCamera: (() -> Bool)?
+    
     /// The maximum number of frames for GIF images. To avoid crashes due to memory spikes caused by loading GIF images with too many frames, it is recommended that this value is not too large. Defaults to 50.
     public var maxFrameCountForGIF = 50
     
     /// You can use this block to customize the playback of GIF images to achieve better results. For example, use FLAnimatedImage to play GIFs. Defaults to nil.
-    public var gifPlayBlock: ((UIImageView, Data, [AnyHashable: Any]?) -> Void)?
+    public var gifPlayBlock: ((UIImageView, Data, PHAsset, [AnyHashable: Any]?) -> Void)?
     
     /// Pause GIF image playback, used together with gifPlayBlock. Defaults to nil.
     public var pauseGIFBlock: ((UIImageView) -> Void)?
@@ -259,8 +268,15 @@ public class ZLPhotoConfiguration: NSObject {
     /// Allow user to do something before select photo result callback.
     /// And you must call the second parameter of this block to continue the photos selection.
     /// The first parameter is the current controller.
-    /// The second parameter is the block that needs to be called after the user completes the operation.
-    public var operateBeforeDoneAction: ((UIViewController, @escaping () -> Void) -> Void)?
+    /// The second parameter is the current selected models.
+    /// The third parameter is the block that needs to be called after the user completes the operation.
+    public var operateBeforeDoneAction: ((_ currVC: UIViewController, _ selModels: [ZLPhotoModel], _ continueBlock: @escaping (_ shouldContinue: Bool) -> Void) -> Void)?
+}
+
+extension ZLPhotoConfiguration {
+    var shouldCheckVideoDataSize: Bool {
+        minSelectVideoDataSize > 0 || maxSelectVideoDataSize != .greatestFiniteMagnitude
+    }
 }
 
 @objc public enum ZLNoAuthorityType: Int {
